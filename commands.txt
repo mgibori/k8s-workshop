@@ -1,0 +1,58 @@
+commands.txt
+
+# Deploy nginx pod
+kubectl run nginx-pod-moran --image=nginx:alpine
+
+# Deploy messaging pod
+ kubectl run messaging --image=redis:alpine --labels='tier=msg' --labels='app=messaging'
+
+# Deply namespace
+kubectl apply -f namespace.yaml
+
+# Export pods to json
+kubectl get po -o json > nodes-moran.json
+
+# Create a service messaging-service - imperative
+kubectl expose pod messaging-service --port=6379 --target-port=6379 --cluster-ip=''
+
+# Create a service messaging-service - yaml
+kubectl apply -f messaging-service.yml
+
+# Create Deployment hr-web-app
+kubectl apply -f hr-web-app.yaml
+
+# Create static pod static-busybox
+kubectl apply -f static-busybox.yaml
+
+# Create Namespace finance-moran
+kubectl create namespace finance-moran
+
+# Create Pod temp-bus
+kubectl run temp-bus --image=redis:alpine --namespace=finance-moran
+
+# Create pv pv-analytics
+kubectl apply -f pv-analytics.yaml
+
+#Create Pod redis-storage-moran with volume emptydir
+kubectl apply -f redis-storage-moran.yaml
+
+# Create Pod pv-1 with PV
+kubectl apply -f pv-1.yaml
+
+# Create deployment nginx-deploy (1.16)
+kubectl apply -f nginx-deploy.yaml --record
+
+#Upgrade deployment nginx-deploy (1.17)
+kubectl set image deployments/nginx-deploy nginx-deploy=nginx:1.17 --record
+
+# Create nginx-resolver Pod + Service
+ kubectl apply -f nginx-resolver.yaml
+
+# get nginx-resolver Pod + Service
+kubectl get service/nginx-resolver-service
+kubectl get pod/nginx-resolver
+
+# Vrify nginx-resolver-service DNS
+kubectl run -i --tty busybox --image=busybox:1.28 -- sh
+/ # nslookup nginx-resolver-service > /root/nginx-moran.svc
+
